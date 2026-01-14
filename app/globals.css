@@ -24,3 +24,115 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+/* =========================
+   DASHBOARD ENHANCEMENTS
+========================= */
+
+/* Sidebar container */
+aside {
+  background-color: #ffffff;
+}
+
+/* Sidebar nav links */
+aside nav a {
+  font-size: 0.95rem;
+  color: #374151; /* gray-700 */
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+/* Active link (reinforces Tailwind class) */
+aside nav a.bg-gray-200 {
+  background-color: #e5e7eb;
+  color: #111827;
+  border-left: 4px solid #4f46e5; /* indigo accent */
+  padding-left: 0.75rem;
+}
+
+/* Hover polish */
+aside nav a:hover {
+  background-color: #f3f4f6;
+}
+
+/* Main content area */
+main {
+  background-color: #f9fafb;
+}
+
+/* Headings */
+h1 {
+  letter-spacing: -0.025em;
+}
+
+/* Page titles */
+main h1 {
+  color: #111827;
+}
+
+/* Smooth transitions */
+aside nav a,
+button {
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+@media (prefers-color-scheme: dark) {
+  body {
+    background-color: #111827;
+    color: #f9fafb;
+  }
+
+  aside {
+    background-color: #1f2937;
+  }
+
+  aside nav a {
+    color: #e5e7eb;
+  }
+
+  aside nav a:hover {
+    background-color: #374151;
+  }
+}
+
+/* Smooth transitions */
+a,
+button {
+  transition: all 0.2s ease-in-out;
+}
+
+/* Page fade-in */
+main {
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* =========================
+   SIDEBAR HEADER (ACME)
+========================= */
+
+.sidebar-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 1rem;
+  background-color: #4f46e5; /* indigo-600 */
+  color: #ffffff;
+  font-weight: 700;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+.sidebar-header svg {
+  color: #ffffff;
+}
