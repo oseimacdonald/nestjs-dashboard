@@ -11,12 +11,6 @@ import {
 
 export async function GET() {
   try {
-    // ⚠️ Reset tables (development only)
-    await sql`DROP TABLE IF EXISTS revenue;`;
-    await sql`DROP TABLE IF EXISTS invoices;`;
-    await sql`DROP TABLE IF EXISTS customers;`;
-    await sql`DROP TABLE IF EXISTS users;`;
-
     // Create tables
     await sql`
       CREATE TABLE users (
