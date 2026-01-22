@@ -8,6 +8,7 @@ import {
   UsersIcon,
   BuildingOffice2Icon,
 } from "@heroicons/react/24/outline"
+import SideNav from '@/app/ui/dashboard/sidenav';
 
 export default function DashboardLayout({
   children,

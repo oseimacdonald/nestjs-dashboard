@@ -1,15 +1,16 @@
-import "./globals.css"
+import '@/app/ui/globals.css';
+import { inter } from '@/app/ui/fonts';
 
 export default function RootLayout({
   children,
 }: {
-  children: React.ReactNode
+  children: React.ReactNode;
 }) {
   return (
-    <html lang="en" suppressHydrationWarning>
-      <body className="min-h-screen bg-gray-50 dark:bg-gray-900 dark:text-gray-100">
+    <html lang="en">
+      <body className={`${inter.className} antialiased`}>
         {children}
       </body>
     </html>
-  )
+  );
 }
