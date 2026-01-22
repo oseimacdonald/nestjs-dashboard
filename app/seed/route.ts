@@ -11,9 +11,15 @@ import {
 
 export async function GET() {
   try {
+    // ⚠️ Reset tables (development only)
+    await sql`DROP TABLE IF EXISTS revenue;`;
+    await sql`DROP TABLE IF EXISTS invoices;`;
+    await sql`DROP TABLE IF EXISTS customers;`;
+    await sql`DROP TABLE IF EXISTS users;`;
+
     // Create tables
     await sql`
-      CREATE TABLE IF NOT EXISTS users (
+      CREATE TABLE users (
         id UUID PRIMARY KEY,
         name TEXT NOT NULL,
         email TEXT NOT NULL UNIQUE,
@@ -22,7 +28,7 @@ export async function GET() {
     `;
 
     await sql`
-      CREATE TABLE IF NOT EXISTS customers (
+      CREATE TABLE customers (
         id UUID PRIMARY KEY,
         name TEXT NOT NULL,
         email TEXT NOT NULL,
@@ -31,7 +37,7 @@ export async function GET() {
     `;
 
     await sql`
-      CREATE TABLE IF NOT EXISTS invoices (
+      CREATE TABLE invoices (
         id UUID PRIMARY KEY,
         customer_id UUID REFERENCES customers(id),
         amount INT NOT NULL,
@@ -41,70 +47,58 @@ export async function GET() {
     `;
 
     await sql`
-      CREATE TABLE IF NOT EXISTS revenue (
+      CREATE TABLE revenue (
         month TEXT PRIMARY KEY,
         revenue INT NOT NULL
       );
     `;
 
     // Insert users
-    const insertedUsers = await Promise.all(
-      users.map(async (user) => {
-        const hashedPassword = await bcrypt.hash(user.password, 10);
-        return sql`
-          INSERT INTO users (id, name, email, password)
-          VALUES (${user.id}, ${user.name}, ${user.email}, ${hashedPassword})
-          ON CONFLICT (id) DO NOTHING;
-        `;
-      })
-    );
+    for (const user of users) {
+      const hashedPassword = await bcrypt.hash(user.password, 10);
+      await sql`
+        INSERT INTO users (id, name, email, password)
+        VALUES (${user.id}, ${user.name}, ${user.email}, ${hashedPassword});
+      `;
+    }
 
     // Insert customers
-    const insertedCustomers = await Promise.all(
-      customers.map((customer) => {
-        return sql`
-          INSERT INTO customers (id, name, email, image_url)
-          VALUES (${customer.id}, ${customer.name}, ${customer.email}, ${customer.image_url})
-          ON CONFLICT (id) DO NOTHING;
-        `;
-      })
-    );
+    for (const customer of customers) {
+      await sql`
+        INSERT INTO customers (id, name, email, image_url)
+        VALUES (${customer.id}, ${customer.name}, ${customer.email}, ${customer.image_url});
+      `;
+    }
 
     // Insert invoices
-    const insertedInvoices = await Promise.all(
-      invoices.map((invoice) => {
-        return sql`
-          INSERT INTO invoices (id, customer_id, amount, status, date)
-          VALUES (
-            ${invoice.id},
-            ${invoice.customer_id},
-            ${invoice.amount},
-            ${invoice.status},
-            ${invoice.date}
-          )
-          ON CONFLICT (id) DO NOTHING;
-        `;
-      })
-    );
+    for (const invoice of invoices) {
+      await sql`
+        INSERT INTO invoices (id, customer_id, amount, status, date)
+        VALUES (
+          ${invoice.id},
+          ${invoice.customer_id},
+          ${invoice.amount},
+          ${invoice.status},
+          ${invoice.date}
+        );
+      `;
+    }
 
     // Insert revenue
-    const insertedRevenue = await Promise.all(
-      revenue.map((rev) => {
-        return sql`
-          INSERT INTO revenue (month, revenue)
-          VALUES (${rev.month}, ${rev.revenue})
-          ON CONFLICT (month) DO NOTHING;
-        `;
-      })
-    );
+    for (const rev of revenue) {
+      await sql`
+        INSERT INTO revenue (month, revenue)
+        VALUES (${rev.month}, ${rev.revenue});
+      `;
+    }
 
     return NextResponse.json({
       message: 'Database seeded successfully',
     });
   } catch (error) {
-    console.error(error);
+    console.error('SEED ERROR:', error);
     return NextResponse.json(
-      { error: 'Error seeding database' },
+      { error: String(error) },
       { status: 500 }
     );
   }

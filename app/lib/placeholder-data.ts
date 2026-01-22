@@ -26,7 +26,7 @@ export const invoices = [
   {
     id: '243e7c03-9c1d-4f3e-9e1a-9c1d4f3e9e1a',
     customer_id: 'd6e15727-9fe1-4961-8c5b-ea44a9bd81aa',
-    amount: 15795,
+    amount: 666,
     status: 'pending',
     date: '2022-12-06',
   },
