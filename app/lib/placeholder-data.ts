@@ -1,6 +1,6 @@
 export const users = [
   {
-    id: 'u1',
+    id: '410544b2-4001-4271-9855-fec4b6a6442a',
     name: 'Admin User',
     email: 'admin@acme.com',
     password: '123456',
@@ -9,13 +9,13 @@ export const users = [
 
 export const customers = [
   {
-    id: 'c1',
+    id: 'd6e15727-9fe1-4961-8c5b-ea44a9bd81aa',
     name: 'Acme Corp',
     email: 'contact@acme.com',
     image_url: '/customers/acme.png',
   },
   {
-    id: 'c2',
+    id: '3958dc9e-712f-4377-85e9-fec4b6a6442a',
     name: 'Globex',
     email: 'info@globex.com',
     image_url: '/customers/globex.png',
@@ -24,15 +24,15 @@ export const customers = [
 
 export const invoices = [
   {
-    id: 'i1',
-    customer_id: 'c1',
+    id: '243e7c03-9c1d-4f3e-9e1a-9c1d4f3e9e1a',
+    customer_id: 'd6e15727-9fe1-4961-8c5b-ea44a9bd81aa',
     amount: 15795,
     status: 'pending',
     date: '2022-12-06',
   },
   {
-    id: 'i2',
-    customer_id: 'c2',
+    id: 'a1b2c3d4-1234-5678-9101-abcdefabcdef',
+    customer_id: '3958dc9e-712f-4377-85e9-fec4b6a6442a',
     amount: 20348,
     status: 'paid',
     date: '2022-11-14',
