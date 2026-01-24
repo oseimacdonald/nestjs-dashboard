@@ -1,4 +1,4 @@
-import styles from '@/app/ui/home.module.css';
+import styles from '@/ui/home.module.css';
 import Status from '@/ui/status';
 import { lusitana } from '@/ui/fonts';
 import Image from 'next/image';
