@@ -1,3 +1,6 @@
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
 import { Metadata } from 'next';
 import Form from '@/ui/invoices/edit-form';
 import Breadcrumbs from '@/ui/invoices/breadcrumbs';
@@ -18,7 +21,7 @@ export default async function Page(props: {
     fetchCustomers(),
   ]);
 
-  // ✅ Trigger not-found.tsx if invoice does not exist
+  // Trigger not-found.tsx if invoice does not exist
   if (!invoice) {
     notFound();
   }
