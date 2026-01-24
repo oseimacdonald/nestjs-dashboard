@@ -1,6 +1,6 @@
 import styles from '@/app/ui/home.module.css';
-import Status from '@/app/ui/status';
-import { lusitana } from '@/app/ui/fonts';
+import Status from '@/ui/status';
+import { lusitana } from '@/ui/fonts';
 import Image from 'next/image';
 
 export default function Page() {
