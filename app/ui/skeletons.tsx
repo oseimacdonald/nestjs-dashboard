@@ -25,6 +25,10 @@ export function LatestInvoicesSkeleton() {
   );
 }
 
+export function InvoicesTableSkeleton() {
+  return <div className="h-40 w-full animate-pulse rounded-md bg-gray-100" />;
+}
+
 export default function DashboardSkeleton() {
   return (
     <main>

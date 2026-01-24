@@ -1,5 +1,5 @@
 import Card from './card';
-import { fetchCardData } from '@/app/lib/data';
+import { fetchCardData } from '@/lib/data';
 
 export default async function CardWrapper() {
   const {

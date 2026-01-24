@@ -1,13 +1,13 @@
 import { NextResponse } from 'next/server';
 import { sql } from '@vercel/postgres';
-import bcrypt from 'bcryptjs';
+import bcrypt from 'bcrypt';
 
 import {
   users,
   customers,
   invoices,
   revenue,
-} from '@/app/lib/placeholder-data';
+} from '@/lib/placeholder-data';
 
 export async function GET() {
   try {
