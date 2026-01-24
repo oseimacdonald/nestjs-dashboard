@@ -1,4 +1,4 @@
-import styles from '@/ui/home.module.css';
+import styles from './ui/home.module.css';
 import Status from '@/ui/status';
 import { lusitana } from '@/ui/fonts';
 import Image from 'next/image';
@@ -20,7 +20,6 @@ export default function Page() {
 
       {/* Hero Images (Chapter 3) */}
       <div className="flex items-center justify-center p-6 md:w-3/5 md:px-28 md:py-12">
-        {/* Desktop image */}
         <Image
           src="/hero-desktop.png"
           width={1356}
@@ -29,7 +28,6 @@ export default function Page() {
           alt="Screenshots of the dashboard project showing desktop version"
         />
 
-        {/* Mobile image */}
         <Image
           src="/hero-mobile.png"
           width={560}
