@@ -28,7 +28,7 @@ It demonstrates modern Next.js features including the App Router, Server Compone
 - Protected routes: `/dashboard/*`
 - Unauthenticated users are redirected to `/login`
 - Login credentials used in the tutorial:
-  - **Email:** `admin@acme.com`
+  - **Email:** `user@nextmail.com`
   - **Password:** `123456`
 
 ---
