@@ -1,13 +1,12 @@
 'use server';
 
 import { z } from 'zod';
-import postgres from 'postgres';
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
-import { signIn } from '@/auth';
+import { signIn, auth } from '@/auth';
 import { AuthError } from 'next-auth';
-
-const sql = postgres(process.env.POSTGRES_URL!, { ssl: 'require' });
+import { sql } from '@vercel/postgres';
+import { randomUUID } from 'crypto';
 
 /* =========================
    TYPES
@@ -26,21 +25,9 @@ export type State = {
 ========================= */
 const FormSchema = z.object({
   id: z.string(),
-
-  customerId: z
-    .string()
-    .min(1, 'Please select a customer.'),
-
-  amount: z.coerce
-    .number()
-    .gt(0, 'Amount must be greater than 0.'),
-
-  status: z
-    .enum(['pending', 'paid'])
-    .refine((val) => val === 'pending' || val === 'paid', {
-      message: 'Please select a status.',
-    }),
-
+  customerId: z.string().min(1, 'Please select a customer.'),
+  amount: z.coerce.number().gt(0, 'Amount must be greater than 0.'),
+  status: z.enum(['pending', 'paid']),
   date: z.string(),
 });
 
@@ -52,8 +39,13 @@ const UpdateInvoice = FormSchema.omit({ id: true, date: true });
 ========================= */
 export async function createInvoice(
   prevState: State,
-  formData: FormData,
-) {
+  formData: FormData
+): Promise<State> {
+  const session = await auth();
+  if (!session) {
+    throw new Error('Unauthorized');
+  }
+
   const validatedFields = CreateInvoice.safeParse({
     customerId: formData.get('customerId'),
     amount: formData.get('amount'),
@@ -70,13 +62,15 @@ export async function createInvoice(
   const { customerId, amount, status } = validatedFields.data;
   const amountInCents = amount * 100;
   const date = new Date().toISOString().split('T')[0];
+  const id = randomUUID();
 
   try {
     await sql`
-      INSERT INTO invoices (customer_id, amount, status, date)
-      VALUES (${customerId}, ${amountInCents}, ${status}, ${date})
+      INSERT INTO invoices (id, customer_id, amount, status, date)
+      VALUES (${id}, ${customerId}, ${amountInCents}, ${status}, ${date})
     `;
-  } catch {
+  } catch (error) {
+    console.error(error);
     return { message: 'Database Error: Failed to Create Invoice.' };
   }
 
@@ -90,8 +84,13 @@ export async function createInvoice(
 export async function updateInvoice(
   id: string,
   prevState: State,
-  formData: FormData,
-) {
+  formData: FormData
+): Promise<State> {
+  const session = await auth();
+  if (!session) {
+    throw new Error('Unauthorized');
+  }
+
   const validatedFields = UpdateInvoice.safeParse({
     customerId: formData.get('customerId'),
     amount: formData.get('amount'),
@@ -117,7 +116,8 @@ export async function updateInvoice(
         status = ${status}
       WHERE id = ${id}
     `;
-  } catch {
+  } catch (error) {
+    console.error(error);
     return { message: 'Database Error: Failed to update invoice.' };
   }
 
@@ -129,9 +129,15 @@ export async function updateInvoice(
    DELETE
 ========================= */
 export async function deleteInvoice(id: string) {
+  const session = await auth();
+  if (!session) {
+    throw new Error('Unauthorized');
+  }
+
   try {
     await sql`DELETE FROM invoices WHERE id = ${id}`;
-  } catch {
+  } catch (error) {
+    console.error(error);
     throw new Error('Database Error: Failed to delete invoice.');
   }
 
@@ -139,11 +145,11 @@ export async function deleteInvoice(id: string) {
 }
 
 /* =========================
-   AUTHENTICATION (STEP 9)
+   AUTHENTICATION
 ========================= */
 export async function authenticate(
   prevState: string | undefined,
-  formData: FormData,
+  formData: FormData
 ) {
   try {
     await signIn('credentials', formData);

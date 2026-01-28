@@ -8,7 +8,7 @@ export const metadata: Metadata = {
 };
 
 export default async function Page() {
-  const customers = await fetchCustomers();
+  const customers = await fetchCustomers(); // ✅ NO wrapping, NO destructuring
 
   return (
     <main>

@@ -1,28 +1,30 @@
-import postgres from 'postgres';
+import { sql } from '@vercel/postgres';
 import { z } from 'zod';
-import { Revenue } from './definitions';
-import { Invoice, Customer } from './definitions';
+import { Revenue, Invoice, Customer } from './definitions';
 
-const sql = postgres(process.env.POSTGRES_URL!, { ssl: 'require' });
-
+/* =========================
+   REVENUE
+========================= */
 export async function fetchRevenue() {
   try {
-    // We artificially delay a response for demo purposes.
-    // Don't do this in production :)
     console.log('Fetching revenue data...');
     await new Promise((resolve) => setTimeout(resolve, 3000));
 
-    const data = await sql<Revenue[]>`SELECT * FROM revenue`;
+    const data = await sql<Revenue[]>`
+      SELECT * FROM revenue
+    `;
 
     console.log('Data fetch completed after 3 seconds.');
-
-    return data;
+    return data.rows;
   } catch (error) {
     console.error('Database Error:', error);
     throw new Error('Failed to fetch revenue data.');
   }
 }
 
+/* =========================
+   DASHBOARD (LATEST)
+========================= */
 export async function fetchLatestInvoices() {
   const data = await sql`
     SELECT
@@ -37,10 +39,12 @@ export async function fetchLatestInvoices() {
     LIMIT 5
   `;
 
-  return Array.from (data);
+  return data.rows;
 }
 
-
+/* =========================
+   DASHBOARD CARDS
+========================= */
 export async function fetchCardData() {
   const invoiceCountPromise = sql`SELECT COUNT(*) FROM invoices`;
   const customerCountPromise = sql`SELECT COUNT(*) FROM customers`;
@@ -58,14 +62,16 @@ export async function fetchCardData() {
   ]);
 
   return {
-    numberOfInvoices: Number(data[0][0].count),
-    numberOfCustomers: Number(data[1][0].count),
-    totalPaidInvoices: Number(data[2][0].paid),
-    totalPendingInvoices: Number(data[2][0].pending),
+    numberOfInvoices: Number(data[0].rows[0].count),
+    numberOfCustomers: Number(data[1].rows[0].count),
+    totalPaidInvoices: Number(data[2].rows[0].paid),
+    totalPendingInvoices: Number(data[2].rows[0].pending),
   };
 }
 
-// Fetch filtered invoices (search + pagination)
+/* =========================
+   INVOICES (TABLE)
+========================= */
 export async function fetchFilteredInvoices(
   query: string,
   currentPage: number,
@@ -92,10 +98,12 @@ export async function fetchFilteredInvoices(
     LIMIT ${ITEMS_PER_PAGE} OFFSET ${offset}
   `;
 
-  return data;
+  return data.rows;
 }
 
-// Fetch total pages for pagination
+/* =========================
+   PAGINATION
+========================= */
 export async function fetchInvoicesPages(query: string) {
   const count = await sql`
     SELECT COUNT(*)
@@ -107,35 +115,34 @@ export async function fetchInvoicesPages(query: string) {
       invoices.status ILIKE ${`%${query}%`}
   `;
 
-  const totalPages = Math.ceil(Number(count[0].count) / 6);
-  return totalPages;
+  return Math.ceil(Number(count.rows[0].count) / 6);
 }
 
-export async function fetchCustomers() {
-  const data = await sql<Customer[]>`
-    SELECT id, name FROM customers
+/* =========================
+   CUSTOMERS
+========================= */
+import type { CustomerField } from './definitions';
+
+export async function fetchCustomers(): Promise<CustomerField[]> {
+  const data = await sql`
+    SELECT id, name
+    FROM customers
     ORDER BY name ASC
   `;
-  return data;
+
+  return data.rows as CustomerField[];
 }
 
+/* =========================
+   SINGLE INVOICE
+========================= */
 export async function fetchInvoiceById(id: string) {
-  // Validate UUID before querying Postgres
-  const uuidSchema = z.string().uuid();
-  const parsedId = uuidSchema.safeParse(id);
+  const parsedId = z.string().uuid().safeParse(id);
+  if (!parsedId.success) return null;
 
-  if (!parsedId.success) {
-    return null;
-  }
+  const data = await sql<Invoice[]>`
+    SELECT * FROM invoices WHERE id = ${id}
+  `;
 
-  try {
-    const data = await sql<Invoice[]>`
-      SELECT * FROM invoices WHERE id = ${id}
-    `;
-    return data[0] ?? null;
-  } catch (error) {
-    console.error('Database Error:', error);
-    throw new Error('Failed to fetch invoice.');
-  }
+  return data.rows[0] ?? null;
 }
-
