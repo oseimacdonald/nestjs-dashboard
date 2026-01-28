@@ -1,25 +1,18 @@
 import { sql } from '@vercel/postgres';
 import { z } from 'zod';
 import { Revenue, Invoice, Customer } from './definitions';
+import type { InvoiceForm } from './definitions';
 
 /* =========================
    REVENUE
 ========================= */
 export async function fetchRevenue() {
-  try {
-    console.log('Fetching revenue data...');
-    await new Promise((resolve) => setTimeout(resolve, 3000));
+  const data = await sql`
+    SELECT month, revenue
+    FROM revenue
+  `;
 
-    const data = await sql<Revenue[]>`
-      SELECT * FROM revenue
-    `;
-
-    console.log('Data fetch completed after 3 seconds.');
-    return data.rows;
-  } catch (error) {
-    console.error('Database Error:', error);
-    throw new Error('Failed to fetch revenue data.');
-  }
+  return data.rows as Revenue[];
 }
 
 /* =========================
@@ -136,13 +129,22 @@ export async function fetchCustomers(): Promise<CustomerField[]> {
 /* =========================
    SINGLE INVOICE
 ========================= */
-export async function fetchInvoiceById(id: string) {
+export async function fetchInvoiceById(
+  id: string,
+): Promise<InvoiceForm | null> {
   const parsedId = z.string().uuid().safeParse(id);
   if (!parsedId.success) return null;
 
-  const data = await sql<Invoice[]>`
-    SELECT * FROM invoices WHERE id = ${id}
+  const data = await sql`
+    SELECT
+      id,
+      customer_id,
+      amount,
+      status
+    FROM invoices
+    WHERE id = ${id}
   `;
 
-  return data.rows[0] ?? null;
+  return (data.rows[0] as InvoiceForm) ?? null;
 }
+
